@@ -15,7 +15,10 @@ Route::get('/dashboard', function () {
 
 Route::middleware('auth')->group(function () {
     Route::resource('users', UsersController::class)->except('show');
-    Route::resource('permissions', PermissionsController::class)->except('show');
+
+    Route::resource('permissions', PermissionsController::class)
+        ->except('show')
+        ->middleware(['permission:user-management']);
 });
 
 Auth::routes();

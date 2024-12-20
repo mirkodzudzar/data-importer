@@ -50,4 +50,13 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Permission::class);
     }
+
+    public function hasPermission(string $permission): bool
+    {
+        if ($this->relationLoaded('permissions')) {
+            return $this->permissions->contains('name', $permission);
+        }
+
+        return $this->permissions()->where('name', $permission)->exists();
+    }
 }
