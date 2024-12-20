@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Http\Requests\UserRequest;
-use Illuminate\Support\Facades\Session;
+use App\Models\Permission;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 
 class UsersController extends Controller
 {
@@ -15,8 +16,6 @@ class UsersController extends Controller
     {
         $users = User::paginate(10);
 
-        Session::flash('alert-danger', 'danger');
-
         return view('users.index', compact('users'));
     }
 
@@ -25,13 +24,15 @@ class UsersController extends Controller
      */
     public function create()
     {
-        return view('users.create');
+        $permissions = Permission::pluck('name', 'label');
+
+        return view('users.create', compact('permissions'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(UserRequest $request)
+    public function store(StoreUserRequest $request)
     {
         $validated = $request->validated();
 
@@ -45,13 +46,15 @@ class UsersController extends Controller
      */
     public function edit(User $user)
     {
+        $permissions = Permission::pluck('name', 'label');
+
         return view('users.edit', compact('user'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UserRequest $request, User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
         $validated = $request->validated();
 

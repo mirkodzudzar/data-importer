@@ -312,7 +312,7 @@ return [
                 [
                     'text' => 'Permissions',
                     'icon' => 'fas fa-fw fa-user-lock',
-                    'url' => '#',
+                    'url' => '/permissions',
                 ],
             ],
         ],
