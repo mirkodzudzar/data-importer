@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+@extends('layouts.app')
 
 @section('title', 'Create Permission')
 
@@ -6,7 +6,7 @@
 <h1>Create Permission</h1>
 @stop
 
-@section('content')
+@section('page-content')
 <div class="col-md-6">
     <div class="card card-primary">
         <div class="card-header">
@@ -25,7 +25,7 @@
                         id="name" placeholder="Enter name" value="{{ old('name') }}">
 
                     <div class="mt-1 mb-2 sm">
-                       {{ __('e.g. new-permission') }}
+                        {{ __('e.g. new-permission') }}
                     </div>
 
                     @error('name')

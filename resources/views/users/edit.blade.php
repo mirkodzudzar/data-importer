@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+@extends('layouts.app')
 
 @section('title', 'Edit User')
 
@@ -6,7 +6,7 @@
 <h1>Edit User</h1>
 @stop
 
-@section('content')
+@section('page-content')
 <div class="col-md-6">
     <div class="card card-primary">
         <div class="card-header">

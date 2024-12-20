@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+@extends('layouts.app')
 
 @section('title', __('Users'))
 
@@ -6,11 +6,12 @@
 <h1>{{ __('Users') }}</h1>
 @stop
 
-@section('content')
+@section('page-content')
 <div>
     <div class="card">
         <div class="card-header">
-            <a href="{{ route('users.create') }}" class="btn btn-block btn-primary" style="width: 150px">{{ __('Create User') }}</a>
+            <a href="{{ route('users.create') }}" class="btn btn-block btn-primary" style="width: 150px">{{
+                __('Create User') }}</a>
         </div>
         <!-- /.card-header -->
         <div class="card-body">
@@ -32,12 +33,15 @@
                         <td>{{ $user->email }}</td>
                         <td>{{ $user->created_at->diffForHumans() }}</td>
                         <td>
-                            <a href="{{ route('users.edit', $user->id) }}" class="btn btn-link p-0 text-primary"><i class="fas fa-solid fa-pen"></i></a>
+                            <a href="{{ route('users.edit', $user->id) }}" class="btn btn-link p-0 text-primary"><i
+                                    class="fas fa-solid fa-pen"></i></a>
 
-                            <form action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline;">
+                            <form action="{{ route('users.destroy', $user->id) }}" method="POST"
+                                style="display:inline;">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-link p-0 text-danger ml-2" title="Delete User" onclick="return confirm('Are you sure you want to delete this user?')">
+                                <button type="submit" class="btn btn-link p-0 text-danger ml-2" title="Delete User"
+                                    onclick="return confirm('Are you sure you want to delete this user?')">
                                     <i class="fas fa-solid fa-trash"></i>
                                 </button>
                             </form>

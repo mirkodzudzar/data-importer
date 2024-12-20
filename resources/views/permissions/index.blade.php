@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+@extends('layouts.app')
 
 @section('title', __('Permissions'))
 
@@ -6,11 +6,12 @@
 <h1>{{ __('Permissions') }}</h1>
 @stop
 
-@section('content')
+@section('page-content')
 <div>
     <div class="card">
         <div class="card-header">
-            <a href="{{ route('permissions.create') }}" class="btn btn-block btn-primary" style="width: 150px">{{ __('Create Permission') }}</a>
+            <a href="{{ route('permissions.create') }}" class="btn btn-block btn-primary" style="width: 150px">{{
+                __('Create Permission') }}</a>
         </div>
         <!-- /.card-header -->
         <div class="card-body">
@@ -32,12 +33,16 @@
                         <td>{{ $permission->label }}</td>
                         <td>{{ $permission->created_at->diffForHumans() }}</td>
                         <td>
-                            <a href="{{ route('permissions.edit', $permission->id) }}" class="btn btn-link p-0 text-primary"><i class="fas fa-solid fa-pen"></i></a>
+                            <a href="{{ route('permissions.edit', $permission->id) }}"
+                                class="btn btn-link p-0 text-primary"><i class="fas fa-solid fa-pen"></i></a>
 
-                            <form action="{{ route('permissions.destroy', $permission->id) }}" method="POST" style="display:inline;">
+                            <form action="{{ route('permissions.destroy', $permission->id) }}" method="POST"
+                                style="display:inline;">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-link p-0 text-danger ml-2" title="Delete Permission" onclick="return confirm('Are you sure you want to delete this permission?')">
+                                <button type="submit" class="btn btn-link p-0 text-danger ml-2"
+                                    title="Delete Permission"
+                                    onclick="return confirm('Are you sure you want to delete this permission?')">
                                     <i class="fas fa-solid fa-trash"></i>
                                 </button>
                             </form>

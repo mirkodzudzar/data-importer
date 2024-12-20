@@ -65,6 +65,6 @@ class PermissionsController extends Controller
     {
         $permission->delete();
 
-        return back()->with('success', __('User deleted!'));
+        return back()->with('success', __('Permission deleted!'));
     }
 }

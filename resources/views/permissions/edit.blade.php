@@ -1,4 +1,4 @@
-@extends('adminlte::page')
+@extends('layouts.app')
 
 @section('title', 'Edit Permission')
 
@@ -6,7 +6,7 @@
 <h1>Edit Permission</h1>
 @stop
 
-@section('content')
+@section('page-content')
 <div class="col-md-6">
     <div class="card card-primary">
         <div class="card-header">
@@ -27,7 +27,7 @@
 
                     <div class="mt-1 mb-2 sm">
                         {{ __('e.g. new-permission') }}
-                        </div>
+                    </div>
 
                     @error('name')
                     <div class="mt-1 mb-2 text-red">
