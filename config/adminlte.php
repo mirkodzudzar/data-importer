@@ -307,7 +307,7 @@ return [
                 [
                     'text' => 'Users',
                     'icon' => 'fas fa-fw fa-user',
-                    'url' => '#',
+                    'url' => '/users',
                 ],
                 [
                     'text' => 'Permissions',
