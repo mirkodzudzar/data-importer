@@ -303,6 +303,7 @@ return [
         [
             'text' => 'User Management',
             'icon' => 'fas fa-fw fa-users',
+            'can'  => 'user-management',
             'submenu' => [
                 [
                     'text' => 'Users',
@@ -313,7 +314,6 @@ return [
                     'text' => 'Permissions',
                     'icon' => 'fas fa-fw fa-user-lock',
                     'url' => '/permissions',
-                    'can'  => 'user-management'
                 ],
             ],
         ],

@@ -14,11 +14,11 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::resource('users', UsersController::class)->except('show');
+    Route::middleware('permission:user-management')->group(function () {
+        Route::resource('users', UsersController::class)->except('show');
 
-    Route::resource('permissions', PermissionsController::class)
-        ->except('show')
-        ->middleware(['permission:user-management']);
+        Route::resource('permissions', PermissionsController::class)->except('show');
+    });
 });
 
 Auth::routes();
