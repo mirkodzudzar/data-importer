@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\OrdersImport;
+use App\Imports\DynamicImport;
 use App\Http\Requests\ImportRequest;
-use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ImportsController extends Controller
 {
@@ -14,7 +16,18 @@ class ImportsController extends Controller
     {
         $importTypes = config('import-types');
 
-        return view('imports.create', compact('importTypes'));
+        $firstImport = collect($importTypes)->first();
+
+        $headers = collect($firstImport['files']['file1']['headers_to_db'])
+            ->filter(function ($item) {
+                return isset($item['validation']) && in_array('required', $item['validation']);
+            })
+            ->map(function ($item) {
+                return $item['label'];
+            })
+            ->implode(', ');
+
+        return view('imports.create', compact('importTypes', 'headers'));
     }
 
     /**
@@ -24,6 +37,23 @@ class ImportsController extends Controller
     {
         $validated = $request->validated();
 
-        // TODO
+        $importType = $validated['import_type'];
+        $importConfig = config("import-types.{$importType}");
+        $permission = $importConfig['permission_required'];
+
+        if (!auth()->user()->hasPermission($permission)) {
+            abort(403);
+        }
+
+        try {
+            Excel::import(
+                new DynamicImport($importType, $importConfig),
+                $validated['file']
+            );
+        } catch (\Exception $e) {
+            return back()->with('error', __('Import failed: '.$e->getMessage()));
+        }
+
+        return back()->with('success', __('Import started successfully!'));
     }
 }

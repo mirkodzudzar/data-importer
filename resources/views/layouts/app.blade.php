@@ -13,6 +13,12 @@
         </x-adminlte-alert>
     @endif
 
+    @if (session('error'))
+        <x-adminlte-alert theme="danger" title="Error" dismissable>
+            {{ session('error') }}
+        </x-adminlte-alert>
+    @endif
+
     @if ($errors->any())
         <x-adminlte-alert theme="danger" title="Whoops!" dismissable>
             Something went wrong with your submission.

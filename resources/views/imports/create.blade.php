@@ -17,7 +17,7 @@
                     <label for="import-type" class="col-sm-2 col-form-label">{{ __('Import Type') }}</label>
 
                     <div class="col-sm-10 p-0">
-                        <select name="import_type" class="custom-select rounded-1" id="import-type">
+                        <select name="import_type" class="custom-select rounded-1" id="import-type" required>
                             @foreach($importTypes as $key => $importType)
                                 <option value="{{ $key }}" @selected($key === old('import_type'))>{{ $importType['label'] }}</option>
                             @endforeach
@@ -35,21 +35,9 @@
                     <label for="file" class="col-sm-2 col-form-label">DS Sheet</label>
 
                     <div class="custom-file col-sm-10">
-                        <input type="file" name="file" class="custom-file-input" id="file">
+                        <input type="file" name="file" class="custom-file-input" id="file" required accept=".csv,.xlsx">
 
                         <label class="custom-file-label" for="file">Choose file</label>
-
-                        @php
-                            $firstImport = collect($importTypes)->first();
-                            $headers = collect($firstImport['files']['file1']['headers_to_db'])
-                                ->filter(function($item) {
-                                    return isset($item['validation']) && in_array('required', $item['validation']);
-                                })
-                                ->map(function($item) {
-                                    return $item['label'];
-                                })
-                                ->implode(', ');
-                        @endphp
 
                         <p class="form-control-plaintext text-gray text-sm" id="required-headers">
                             @if (!empty($headers))
