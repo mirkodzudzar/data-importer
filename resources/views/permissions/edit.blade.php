@@ -22,7 +22,7 @@
                 <div class="form-group">
                     <label for="name">Name</label>
 
-                    <input type="text" name="name" class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}"
+                    <input type="text" name="name" class="form-control"
                         id="name" placeholder="Enter name" value="{{ old('name', $permission->name) }}">
 
                     <div class="mt-1 mb-2 sm">

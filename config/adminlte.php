@@ -320,7 +320,7 @@ return [
         [
             'text' => 'Data Import',
             'icon' => 'fas fa-fw fa-cubes',
-            'url' => '#',
+            'url' => '/imports/create',
         ],
         [
             'text' => 'Imported Data',

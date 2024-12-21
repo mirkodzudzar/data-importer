@@ -31,9 +31,7 @@ class PermissionsController extends Controller
      */
     public function store(StorePermissionRequest $request)
     {
-        $validated = $request->validated();
-
-        Permission::create($validated);
+        Permission::create($request->validated());
 
         return redirect()->route('permissions.index')->with('success', __('Permission created!'));
     }
@@ -51,9 +49,7 @@ class PermissionsController extends Controller
      */
     public function update(UpdatePermissionRequest $request, Permission $permission)
     {
-        $validated = $request->validated();
-
-        $permission->update($validated);
+        $permission->update($request->validated());
 
         return back()->with('success', __('Permission updated!'));
     }

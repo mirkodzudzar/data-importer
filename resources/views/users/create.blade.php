@@ -21,13 +21,29 @@
                 <div class="form-group">
                     <label for="name">Name</label>
 
-                    <input type="text" name="name" class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}"
+                    <input type="text" name="name" class="form-control"
                         id="name" placeholder="Enter name" value="{{ old('name') }}">
 
                     @error('name')
-                    <div class="mt-1 mb-2 text-red">
-                        {{ $message }}
-                    </div>
+                        <div class="mt-1 mb-2 text-red">
+                            {{ $message }}
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="permission">{{ __('Permission') }}</label>
+
+                    <select name="permissions[]" multiple class="form-control" id="permission">
+                        @foreach ($permissions as $permission)
+                            <option value="{{ $permission->id }}" @selected(in_array($permission->id, old('permissions', [])))>{{ $permission->label }}</option>
+                        @endforeach
+                    </select>
+
+                    @error('permissions*')
+                        <div class="mt-1 mb-2 text-red">
+                            {{ $message }}
+                        </div>
                     @enderror
                 </div>
 
@@ -38,9 +54,9 @@
                         value="{{ old('email') }}">
 
                     @error('email')
-                    <div class="mt-1 mb-2 text-red">
-                        {{ $message }}
-                    </div>
+                        <div class="mt-1 mb-2 text-red">
+                            {{ $message }}
+                        </div>
                     @enderror
                 </div>
 
@@ -50,9 +66,9 @@
                     <input type="password" name="password" class="form-control" id="password" placeholder="Password">
 
                     @error('password')
-                    <div class="mt-1 mb-2 text-red">
-                        {{ $message }}
-                    </div>
+                        <div class="mt-1 mb-2 text-red">
+                            {{ $message }}
+                        </div>
                     @enderror
                 </div>
 

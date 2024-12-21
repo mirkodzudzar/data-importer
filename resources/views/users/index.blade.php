@@ -21,6 +21,7 @@
                         <th style="width: 10px">{{ __('ID') }}</th>
                         <th>{{ __('Name') }}</th>
                         <th>{{ __('Email') }}</th>
+                        <th>{{ __('Permissions') }}</th>
                         <th>{{ __('Created') }}</th>
                         <th style="width: 10px">{{ __('Actions') }}</th>
                     </tr>
@@ -31,6 +32,7 @@
                         <td>{{ $user->id }}</td>
                         <td>{{ $user->name }}</td>
                         <td>{{ $user->email }}</td>
+                        <td>{{ $user->permissions->pluck('label')->join(', ') }}</td>
                         <td>{{ $user->created_at->diffForHumans() }}</td>
                         <td>
                             <a href="{{ route('users.edit', $user->id) }}" class="btn btn-link p-0 text-primary"><i

@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreUserRequest extends FormRequest
+class ImportRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -21,12 +22,11 @@ class StoreUserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $importTypes = config("import-types");
+
         return [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'permissions' => ['nullable', 'array'],
-            'permissions.*' => ['integer', 'exists:permissions,id'],
+            'import_type' => ['required', 'string', Rule::in(array_keys($importTypes))],
+            'file' => 'required|file|mimes:csv,xlsx'
         ];
     }
 }
