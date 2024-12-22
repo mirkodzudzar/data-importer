@@ -109,23 +109,13 @@ return [
             ]
         ]
     ],
-    'cases' => [
-        'label' => 'Import Cases',
-        'permission_required' => 'import-cases',
+    'products' => [
+        'label' => 'Import Products',
+        'permission_required' => 'import-products',
         'files' => [
             'file1' => [
                 'label' => 'File 1',
                 'headers_to_db' => [
-                    'case_date' => [
-                        'label' => 'Case Date',
-                        'type' => 'date',
-                        'validation' => ['required']
-                    ],
-                    'channel' => [
-                        'label' => 'Channel',
-                        'type' => 'string',
-                        'validation' => ['required', 'in' => ['PT', 'Amazon', 'eBay']]
-                    ],
                     'sku' => [
                         'label' => 'SKU',
                         'type' => 'string',
@@ -135,26 +125,6 @@ return [
                         'label' => 'Item Description',
                         'type' => 'string',
                         'validation' => ['nullable']
-                    ],
-                    'origin' => [
-                        'label' => 'Origin',
-                        'type' => 'string',
-                        'validation' => ['required']
-                    ],
-                    'so_num' => [
-                        'label' => 'SO#',
-                        'type' => 'string',
-                        'validation' => ['required']
-                    ],
-                    'cost' => [
-                        'label' => 'Cost',
-                        'type' => 'double',
-                        'validation' => ['required']
-                    ],
-                    'shipping_cost' => [
-                        'label' => 'Shipping Cost',
-                        'type' => 'double',
-                        'validation' => ['required']
                     ],
                     'total_price' => [
                         'label' => 'Total Price',

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\ImportLogStatus;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ImportLog extends Model
 {
@@ -22,4 +23,9 @@ class ImportLog extends Model
     protected $casts = [
         'status' => ImportLogStatus::class,
     ];
+
+    public function import(): BelongsTo
+    {
+        return $this->belongsTo(Import::class);
+    }
 }

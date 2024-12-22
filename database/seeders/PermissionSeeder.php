@@ -33,6 +33,12 @@ class PermissionSeeder extends Seeder
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
+            [
+                'name' => 'import-products',
+                'label' => 'Import Products',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
         ];
     }
 }

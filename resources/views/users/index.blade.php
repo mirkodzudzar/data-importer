@@ -15,7 +15,7 @@
         </div>
         <!-- /.card-header -->
         <div class="card-body">
-            <table class="table table-bordered">
+            <table class="table">
                 <thead>
                     <tr>
                         <th style="width: 10px">{{ __('ID') }}</th>
