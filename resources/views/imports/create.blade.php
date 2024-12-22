@@ -76,8 +76,8 @@
                         fileInputGroup.innerHTML = `
                             <label class="col-sm-2 col-form-label">${fileConfig.label}</label>
                             <div class="custom-file col-sm-10">
-                                <input type="file" name="files[${fileKey}]" class="custom-file-input" accept=".csv,.xlsx">
-                                <label class="custom-file-label">Choose file</label>
+                                <input type="file" name="files[${fileKey}]" class="custom-file-input" accept=".csv,.xlsx" id="file-${fileKey}">
+                                <label class="custom-file-label" for="file-${fileKey}" id="label-${fileKey}">Choose file</label>
                                 <p class="form-control-plaintext text-gray text-sm" id="headers-${fileKey}">
                                     Required Headers: ${requiredHeaders.length > 0
                                         ? requiredHeaders.join(', ')
@@ -87,6 +87,13 @@
                         `;
 
                         fileInputsContainer.appendChild(fileInputGroup);
+
+                        // Add event listener to display the uploaded file name
+                        const fileInput = document.getElementById(`file-${fileKey}`);
+                        const fileLabel = document.getElementById(`label-${fileKey}`);
+                        fileInput.addEventListener('change', function () {
+                            fileLabel.textContent = this.files[0]?.name || 'Choose file';
+                        });
                     });
                 }
             }
