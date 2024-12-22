@@ -324,16 +324,6 @@ return [
             'can'  => 'import-data',
         ],
         [
-            'text' => 'Imported Data',
-            'icon' => 'fas fa-fw fa-chart-line',
-            'submenu' => [
-                [
-                    'text' => 'Orders...',
-                    'url' => '#',
-                ],
-            ],
-        ],
-        [
             'text' => 'Imports',
             'icon' => 'fas fa-fw fa-cubes',
             'url' => '#',

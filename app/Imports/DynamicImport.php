@@ -133,10 +133,27 @@ class DynamicImport implements
             $data[$config['db_field']] = $value;
         }
 
+        $data['import_id'] = $this->importId;
         $data['import_file_key'] = $this->fileKey;
         $data['import_file_name'] = $this->fileName;
 
-        return new $this->modelClass($data);
+        // Get keys for updateOrCreate from config
+        $updateOrCreateKeys = $this->importConfig['files'][$this->fileKey]['update_or_create'] ?? [];
+        $uniqueKeys = [];
+
+        foreach ($updateOrCreateKeys as $key) {
+            if (isset($data[$key])) {
+                $uniqueKeys[$key] = $data[$key];
+            }
+        }
+
+        if (!empty($uniqueKeys)) {
+            // Use updateOrCreate for records with unique keys
+            return $this->modelClass::updateOrCreate($uniqueKeys, $data);
+        } else {
+            // If no unique keys, just create the record
+            return new $this->modelClass($data);
+        }
     }
 
     public function rules(): array

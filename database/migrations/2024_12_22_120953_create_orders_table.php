@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('import_id')->nullable()->constrained()->onDelete('set null');
             $table->date('order_date');
             $table->string('channel');
             $table->string('sku');

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Import;
+use Illuminate\Support\Str;
 use App\Imports\DynamicImport;
 use App\Http\Requests\ImportRequest;
 use Maatwebsite\Excel\Facades\Excel;
@@ -56,5 +58,47 @@ class ImportsController extends Controller
         }
 
         return back()->with('success', __('Import started successfully! You will be notified once import is over.'));
+    }
+
+    public function show($type, $file)
+    {
+        $importConfig = config("import-types.{$type}");
+
+        if (!$importConfig || !isset($importConfig['files'][$file])) {
+            abort(404);
+        }
+
+        // Check if the model class exists for the import type
+        $modelName = Str::singular(Str::studly($type));
+        $modelClass = "App\\Models\\{$modelName}";
+
+        if (!class_exists($modelClass)) {
+            abort(404);
+        }
+
+        // Fetch the latest import entry for the specific type and file
+        $latestImport = Import::where('import_type', $type)
+            ->where('file_key', $file)
+            ->latest()
+            ->first();
+
+        if (!$latestImport) {
+            return view('imports.show', [
+                'data' => collect(), // Empty data
+                'headers' => array_keys($importConfig['files'][$file]['headers_to_db']),
+                'type' => $type,
+                'file' => $file,
+            ])->with('error', __('No imports found for this file.'));
+        }
+
+        // Fetch the data linked to the latest import
+        $data = $modelClass::where('import_id', $latestImport->id)
+            ->latest()
+            ->paginate(15);
+
+        // Get headers for the table dynamically from the configuration
+        $headers = array_keys($importConfig['files'][$file]['headers_to_db']);
+
+        return view('imports.show', compact('data', 'headers', 'type', 'file'));
     }
 }

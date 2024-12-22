@@ -67,12 +67,17 @@ return [
                     'channel' => [
                         'label' => 'Channel',
                         'type' => 'string',
-                        'validation' => ['required', 'in' => ['PT', 'Amazon']]
+                        'validation' => ['required', 'in' => ['PT', 'Amazon', 'eBay']]
                     ],
                     'sku' => [
                         'label' => 'SKU',
                         'type' => 'string',
                         'validation' => ['required', 'exists' => ['table' => 'products', 'column' => 'sku']]
+                    ],
+                    'item_description' => [
+                        'label' => 'Item Description',
+                        'type' => 'string',
+                        'validation' => ['nullable']
                     ],
                     'origin' => [
                         'label' => 'Origin',
@@ -98,7 +103,7 @@ return [
                         'label' => 'Total Price',
                         'type' => 'double',
                         'validation' => ['required']
-                    ]
+                    ],
                 ],
                 'update_or_create' => ['so_num', 'sku']
             ]
