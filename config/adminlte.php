@@ -326,7 +326,7 @@ return [
         [
             'text' => 'Imports',
             'icon' => 'fas fa-fw fa-cubes',
-            'url' => '#',
+            'url' => '/imports',
         ],
     ],
 

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class ImportLog extends Model
 {
     protected $fillable = [
+        'import_id',
         'file_key',
         'file_name',
         'import_type',

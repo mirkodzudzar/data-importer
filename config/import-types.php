@@ -77,7 +77,7 @@ return [
                     'item_description' => [
                         'label' => 'Item Description',
                         'type' => 'string',
-                        'validation' => ['nullable']
+                        'validation' => ['required']
                     ],
                     'origin' => [
                         'label' => 'Origin',
@@ -124,7 +124,7 @@ return [
                     'channel' => [
                         'label' => 'Channel',
                         'type' => 'string',
-                        'validation' => ['required', 'in' => ['PT', 'Amazon']]
+                        'validation' => ['required', 'in' => ['PT', 'Amazon', 'eBay']]
                     ],
                     'sku' => [
                         'label' => 'SKU',

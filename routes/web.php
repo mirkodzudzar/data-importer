@@ -30,6 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/imports', [ImportsController::class, 'store'])->name('imports.store');
     });
 
+    Route::get('/imports', [ImportsController::class, 'index'])->name('imports.index');
     Route::get('/imports/{type}/{file}', [ImportsController::class, 'show'])->name('imports.show');
 });
 

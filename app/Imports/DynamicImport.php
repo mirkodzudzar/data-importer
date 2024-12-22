@@ -10,7 +10,9 @@ use App\Models\ImportLog;
 use Illuminate\Support\Str;
 use App\Events\ImportFailed;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Events\AfterImport;
 use Maatwebsite\Excel\Validators\Failure;
+use Maatwebsite\Excel\Concerns\WithEvents;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\SkipsOnFailure;
@@ -18,6 +20,7 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithSkipDuplicates;
+use Maatwebsite\Excel\Concerns\RegistersEventListeners;
 
 class DynamicImport implements
     ToModel,
@@ -27,8 +30,11 @@ class DynamicImport implements
     WithChunkReading,
     SkipsOnFailure,
     SkipsOnError,
+    WithEvents,
     ShouldQueue
 {
+    use RegistersEventListeners;
+
     protected $importConfig;
     protected $importType;
     protected $fileKey;
@@ -38,7 +44,6 @@ class DynamicImport implements
     protected $columnMap = [];
     protected $importId;
     protected $userId;
-    protected $hasErrors = false;
 
     public function __construct(string $importType, array $importConfig, string $fileKey, string $fileName, int $userId)
     {
@@ -198,7 +203,9 @@ class DynamicImport implements
      */
     public function onFailure(Failure ...$failures): void
     {
-        $this->hasErrors = true;
+        Import::query()
+            ->where('id', $this->importId)
+            ->update(['status' => ImportStatus::UNSUCCESSFUL]);
 
         foreach ($failures as $failure) {
             ImportLog::create([
@@ -207,7 +214,7 @@ class DynamicImport implements
                 'file_name' => $this->fileName,
                 'import_id' => $this->importId,
                 'row_number' => $failure->row(),
-                'error_column_value' => $failure->values()[$failure->attribute()],
+                'error_column_value' => $failure->values()[$failure->attribute()] ?? null,
                 'error_column' => $failure->attribute(),
                 'error_message' => implode(', ', $failure->errors()),
                 'status' => ImportLogStatus::VALIDATION_FAILED,
@@ -219,6 +226,10 @@ class DynamicImport implements
 
     public function onError(Throwable $e): void
     {
+        Import::query()
+            ->where('id', $this->importId)
+            ->update(['status' => ImportStatus::UNSUCCESSFUL]);
+
         ImportLog::create([
             'import_type' => $this->importType,
             'import_file_key' => $this->fileKey,
@@ -230,7 +241,23 @@ class DynamicImport implements
             'status' => ImportLogStatus::ERROR,
         ]);
 
-        Import::where('id', $this->importId)->update(['status' => ImportStatus::UNSUCCESSFUL]);
+        event(new ImportFailed($this->importId, $this->fileName, $this->userId));
+    }
+
+    public static function afterImport(AfterImport $event): void
+    {
+        $import = $event->getConcernable();
+
+        $hasErrors = ImportLog::where('import_id', $import->importId)
+            ->whereIn('status', [ImportLogStatus::VALIDATION_FAILED, ImportLogStatus::ERROR])
+            ->exists();
+
+        if (!$hasErrors) {
+            Import::query()
+                ->where('id', $import->importId)
+                ->where('status', ImportStatus::IN_PROGRESS) // Only update if still in progress
+                ->update(['status' => ImportStatus::SUCCESSFUL]);
+        }
     }
 
     public function startRow(): int
@@ -241,13 +268,5 @@ class DynamicImport implements
     public function chunkSize(): int
     {
         return 1000;
-    }
-
-    public function __destruct()
-    {
-        $status = $this->hasErrors ? ImportStatus::UNSUCCESSFUL : ImportStatus::SUCCESSFUL;
-
-        Import::where('id', $this->importId)
-            ->update(['status' => $status]);
     }
 }

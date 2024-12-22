@@ -36,9 +36,10 @@ class ImportFailureNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Import Failed Notification')
-            ->line("The import process for the file '{$this->fileName}' has failed.")
-            ->line("Import ID: {$this->importId}")
-            ->line('Please check the logs for more details.');
+            ->subject(__("Import Failed Notification"))
+            ->line(__("The import process for the file ':file' has failed.", ['file' => $this->fileName]))
+            ->line(__("Import ID: ").$this->importId)
+            ->action(__("View All Imports"), route('imports.index'))
+            ->line(__("Please check the logs for more details."));
     }
 }

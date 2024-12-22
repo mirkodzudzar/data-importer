@@ -10,6 +10,13 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ImportsController extends Controller
 {
+    public function index()
+    {
+        $imports = Import::latest()->paginate(10);
+
+        return view('imports.index', compact('imports'));
+    }
+
     /**
      * Show the form for creating a new resource.
      */

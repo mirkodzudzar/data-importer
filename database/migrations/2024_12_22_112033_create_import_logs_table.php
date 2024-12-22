@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('import_logs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('import_id')->nullable()->constrained()->onDelete('cascade');
             $table->string('file_key');
             $table->string('file_name');
             $table->string('import_type');
