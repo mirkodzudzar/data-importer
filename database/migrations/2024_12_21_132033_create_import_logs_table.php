@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('file_name');
             $table->string('import_type');
             $table->integer('row_number');
-            $table->json('row_data');
+            $table->string('error_column_value')->nullable();
             $table->string('error_column');
             $table->text('error_message');
             $table->string('status');

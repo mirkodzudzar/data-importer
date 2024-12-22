@@ -207,7 +207,7 @@ class DynamicImport implements
                 'file_name' => $this->fileName,
                 'import_id' => $this->importId,
                 'row_number' => $failure->row(),
-                'row_data' => $failure->values(),
+                'error_column_value' => $failure->values()[$failure->attribute()],
                 'error_column' => $failure->attribute(),
                 'error_message' => implode(', ', $failure->errors()),
                 'status' => ImportLogStatus::VALIDATION_FAILED,

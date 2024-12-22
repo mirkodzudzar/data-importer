@@ -12,14 +12,13 @@ class ImportLog extends Model
         'file_name',
         'import_type',
         'row_number',
-        'row_data',
+        'error_column_value',
         'error_column',
         'error_message',
         'status'
     ];
 
     protected $casts = [
-        'row_data' => 'array',
         'status' => ImportLogStatus::class,
     ];
 }
