@@ -19,49 +19,31 @@
                     <div class="col-sm-10 p-0">
                         <select name="import_type" class="custom-select rounded-1" id="import-type" required>
                             @foreach($importTypes as $key => $importType)
-                                <option value="{{ $key }}" @selected($key === old('import_type'))>{{ $importType['label'] }}</option>
+                                <option value="{{ $key }}" @selected($key === old('import_type'))>
+                                    {{ $importType['label'] }}
+                                </option>
                             @endforeach
                         </select>
 
                         @error('import_type')
-                            <div class="mt-1 mb-2 text-red">
-                                {{ $message }}
-                            </div>
+                            <div class="mt-1 mb-2 text-red">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
 
-                <div class="form-group row">
-                    <label for="file" class="col-sm-2 col-form-label">DS Sheet</label>
+                <!-- Dynamic File Inputs -->
+                <div id="file-inputs-container"></div>
 
-                    <div class="custom-file col-sm-10">
-                        <input type="file" name="file" class="custom-file-input" id="file" required accept=".csv,.xlsx">
-
-                        <label class="custom-file-label" for="file">Choose file</label>
-
-                        <p class="form-control-plaintext text-gray text-sm" id="required-headers">
-                            @if (!empty($headers))
-                                {{ __('Required Headers: ') }}
-                                {{ $headers }}
-                            @else
-                                {{ __('No Required Headers') }}
-                            @endif
-                        </p>
-
-                        @error('file')
-                            <div class="text-red">
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-                </div>
+                @error('files*')
+                    <div class="mt-1 mb-2 text-red">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="card-footer bg-transparent mt-4 p-0">
                 <div class="col-sm-10 float-right">
                     <button type="submit" class="btn btn-info">{{ __('Import') }}</button>
                 </div>
-              </div>
+            </div>
         </form>
     </div>
 </div>
@@ -69,37 +51,55 @@
 
 @push('js')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const importTypes = @json($importTypes);
             const importSelect = document.getElementById('import-type');
-            const headersDisplay = document.getElementById('required-headers');
+            const fileInputsContainer = document.getElementById('file-inputs-container');
 
-            importSelect?.addEventListener('change', function() {
-                const selectedImport = importTypes[this.value];
+            function renderFileInputs(selectedType) {
+                fileInputsContainer.innerHTML = ''; // Clear previous inputs
 
-                if (selectedImport && selectedImport.files?.file1?.headers_to_db) {
-                    const requiredHeaders = Object.values(selectedImport.files.file1.headers_to_db)
-                        .filter(header =>
-                            header.validation &&
-                            Array.isArray(header.validation) &&
-                            header.validation.includes('required')
-                        )
-                        .map(header => header.label);
+                const selectedImport = importTypes[selectedType];
+                if (selectedImport && selectedImport.files) {
+                    Object.keys(selectedImport.files).forEach(fileKey => {
+                        const fileConfig = selectedImport.files[fileKey];
 
-                    headersDisplay.textContent = requiredHeaders.length > 0
-                        ? `Required Headers: ${requiredHeaders.join(', ')}`
-                        : 'No Required Headers';
-                } else {
-                    headersDisplay.textContent = 'No Required Headers';
+                        const fileInputGroup = document.createElement('div');
+                        fileInputGroup.className = 'form-group row mt-5';
+
+                        const requiredHeaders = Object.values(fileConfig.headers_to_db)
+                            .filter(header => {
+                                return header.validation && Array.isArray(header.validation) && header.validation.includes('required');
+                            })
+                            .map(header => header.label);
+
+                        fileInputGroup.innerHTML = `
+                            <label class="col-sm-2 col-form-label">${fileConfig.label}</label>
+                            <div class="custom-file col-sm-10">
+                                <input type="file" name="files[${fileKey}]" class="custom-file-input" accept=".csv,.xlsx">
+                                <label class="custom-file-label">Choose file</label>
+                                <p class="form-control-plaintext text-gray text-sm" id="headers-${fileKey}">
+                                    Required Headers: ${requiredHeaders.length > 0
+                                        ? requiredHeaders.join(', ')
+                                        : 'No Required Headers'}
+                                </p>
+                            </div>
+                        `;
+
+                        fileInputsContainer.appendChild(fileInputGroup);
+                    });
                 }
+            }
+
+            // Trigger on change
+            importSelect.addEventListener('change', function () {
+                renderFileInputs(this.value);
             });
 
-            // Trigger initial load if needed
-            if (importSelect && importSelect.value) {
-                importSelect.dispatchEvent(new Event('change'));
+            // Initialize on page load
+            if (importSelect.value) {
+                renderFileInputs(importSelect.value);
             }
         });
     </script>
 @endpush
-
-

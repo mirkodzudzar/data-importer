@@ -11,15 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('import_logs', function (Blueprint $table) {
+        Schema::create('imports', function (Blueprint $table) {
             $table->id();
+            $table->string('import_type');
             $table->string('file_key');
             $table->string('file_name');
-            $table->string('import_type');
-            $table->integer('row_number');
-            $table->json('row_data');
-            $table->string('error_column');
-            $table->text('error_message');
             $table->string('status');
             $table->timestamps();
         });
@@ -30,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('import_logs');
+        Schema::dropIfExists('imports');
     }
 };

@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\ImportLogStatus;
 use Illuminate\Database\Eloquent\Model;
 
 class ImportLog extends Model
 {
     protected $fillable = [
+        'file_key',
+        'file_name',
         'import_type',
         'row_number',
         'row_data',
@@ -16,6 +19,7 @@ class ImportLog extends Model
     ];
 
     protected $casts = [
-        'row_data' => 'array'
+        'row_data' => 'array',
+        'status' => ImportLogStatus::class,
     ];
 }

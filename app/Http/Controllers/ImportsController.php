@@ -19,18 +19,7 @@ class ImportsController extends Controller
             return auth()->user()->hasPermission($importType['permission_required']);
         });
 
-        $firstImport = collect($importTypes)->first();
-
-        $headers = collect($firstImport['files']['file1']['headers_to_db'])
-            ->filter(function ($item) {
-                return isset($item['validation']) && in_array('required', $item['validation']);
-            })
-            ->map(function ($item) {
-                return $item['label'];
-            })
-            ->implode(', ');
-
-        return view('imports.create', compact('importTypes', 'headers'));
+        return view('imports.create', compact('importTypes'));
     }
 
     /**
@@ -45,18 +34,26 @@ class ImportsController extends Controller
         $permission = $importConfig['permission_required'];
 
         if (!auth()->user()->hasPermission($permission)) {
-            abort(403);
+            abort(404);
         }
 
         try {
-            Excel::import(
-                new DynamicImport($importType, $importConfig),
-                $validated['file']
-            );
+            foreach ($validated['files'] as $fileKey => $file) {
+                if (!isset($importConfig['files'][$fileKey])) {
+                    continue;
+                }
+
+                $fileName = $file->getClientOriginalName();
+
+                Excel::import(
+                    new DynamicImport($importType, $importConfig, $fileKey, $fileName),
+                    $file
+                );
+            }
         } catch (\Exception $e) {
             return back()->with('error', __('Import failed: '.$e->getMessage()));
         }
 
-        return back()->with('success', __('Import started successfully!'));
+        return back()->with('success', __('Import started successfully! Files are being processed in the background.'));
     }
 }
