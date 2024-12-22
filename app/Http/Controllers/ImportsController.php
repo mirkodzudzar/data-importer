@@ -39,8 +39,12 @@ class ImportsController extends Controller
 
         try {
             foreach ($validated['files'] as $fileKey => $file) {
-                if (!isset($importConfig['files'][$fileKey])) {
-                    continue;
+                if (
+                    !isset($importConfig['files'][$fileKey])
+                    || !isset($importConfig['files'][$fileKey]['headers_to_db'])
+                    || count($importConfig['files'][$fileKey]['headers_to_db']) === 0
+                ) {
+                    return back()->with('error', __('Import failed, no headers found!'));
                 }
 
                 $fileName = $file->getClientOriginalName();
@@ -54,6 +58,6 @@ class ImportsController extends Controller
             return back()->with('error', __('Import failed: '.$e->getMessage()));
         }
 
-        return back()->with('success', __('Import started successfully! Files are being processed in the background.'));
+        return back()->with('success', __('Import started successfully! You will be notified once import is over.'));
     }
 }
