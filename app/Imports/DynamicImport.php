@@ -19,6 +19,7 @@ class DynamicImport implements ToModel, WithHeadingRow, WithValidation, WithSkip
     protected $importType;
     protected $modelClass;
     protected $rowNumber = 0;
+    protected $columnMap = [];
 
     public function __construct(string $importType, array $importConfig)
     {
@@ -28,37 +29,61 @@ class DynamicImport implements ToModel, WithHeadingRow, WithValidation, WithSkip
         // Dynamically determine model class (e.g., 'orders' -> 'App\Models\Order')
         $modelName = Str::singular(Str::studly($importType));
         $this->modelClass = "App\\Models\\{$modelName}";
+
+        // Pre-build column mapping
+        $this->buildColumnMap();
+    }
+
+    protected function buildColumnMap()
+    {
+        $headerMapping = $this->importConfig['files']['file1']['headers_to_db'];
+
+        foreach ($headerMapping as $dbField => $fieldConfig) {
+            $excelHeader = $this->normalizeHeader($fieldConfig['label']);
+
+            $this->columnMap[$excelHeader] = [
+                'db_field' => $dbField,
+                'type' => $fieldConfig['type']
+            ];
+        }
     }
 
     /**
-     * @param array $row
-     *
-     * @return \Illuminate\Database\Eloquent\Model|null
+     * Normalize Excel headers to match with data array keys
      */
+    protected function normalizeHeader($header)
+    {
+        $normalized = strtolower(str_replace(' ', '_', $header));
+        // Remove special characters
+        $normalized = preg_replace('/[^a-z0-9_]/', '', $normalized);
+
+        return $normalized;
+    }
+
     public function model(array $row)
     {
         $this->rowNumber++;
-
-        // Get headers_to_db mapping from config
-        $headerMapping = $this->importConfig['files']['file1']['headers_to_db'];
-
-        // Prepare data for model creation
         $data = [];
-        foreach ($headerMapping as $dbField => $fieldConfig) {
-            $columnName = $fieldConfig['label'];
-            $value = $row[$columnName] ?? null;
+        $normalizedRow = [];
 
-            // Convert value based on type from config
+        // Convert Excel row headers to normalized format
+        foreach ($row as $header => $value) {
+            $normalizedHeader = $this->normalizeHeader($header);
+            $normalizedRow[$normalizedHeader] = $value;
+        }
+
+        foreach ($this->columnMap as $excelHeader => $config) {
+            $value = $normalizedRow[$excelHeader] ?? null;
+
             if ($value !== null) {
-                switch ($fieldConfig['type']) {
+                switch ($config['type']) {
                     case 'double':
-                        $value = (float) str_replace(['$', ','], '', $value); // Remove currency symbols and commas
+                        $value = (float) str_replace(['$', ','], '', $value);
                         break;
                     case 'date':
                         try {
-                            $value = \Carbon\Carbon::parse($value);
+                            $value = \Carbon\Carbon::parse($value)->format('Y-m-d');
                         } catch (\Exception $e) {
-                            // Handle invalid date format
                             $value = null;
                         }
                         break;
@@ -75,34 +100,30 @@ class DynamicImport implements ToModel, WithHeadingRow, WithValidation, WithSkip
                 }
             }
 
-            $data[$dbField] = $value;
+            $data[$config['db_field']] = $value;
         }
 
-        // Dynamically create model instance
         return new $this->modelClass($data);
     }
 
     public function rules(): array
     {
-        // Build validation rules dynamically from config
         $rules = [];
         $headerMapping = $this->importConfig['files']['file1']['headers_to_db'];
 
         foreach ($headerMapping as $dbField => $fieldConfig) {
-            $columnName = strtolower(str_replace(' ', '_', $fieldConfig['label']));
+            $columnName = $this->normalizeHeader($fieldConfig['label']);
             $validationRules = [];
 
             if (isset($fieldConfig['validation'])) {
                 foreach ($fieldConfig['validation'] as $rule => $params) {
                     if (is_numeric($rule)) {
-                        // Simple rule like 'required'
                         $validationRules[] = $params;
                     } else {
-                        // Complex rule like 'exists' or 'in'
                         if ($rule === 'exists') {
                             $validationRules[] = "exists:{$params['table']},{$params['column']}";
                         } elseif ($rule === 'in') {
-                            $validationRules[] = 'in:'.implode(',', $params);
+                            $validationRules[] = 'in:' . implode(',', $params);
                         }
                     }
                 }
@@ -123,7 +144,7 @@ class DynamicImport implements ToModel, WithHeadingRow, WithValidation, WithSkip
     {
         foreach ($failures as $failure) {
             ImportLog::create([
-                'import_type' => 'orders',
+                'import_type' => $this->importType,
                 'row_number' => $failure->row(),
                 'row_data' => $failure->values(),
                 'error_column' => $failure->attribute(),

@@ -13,15 +13,15 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->date('date')->nullable();
-            $table->string('channel')->nullable();
-            $table->string('sku')->nullable();
+            $table->date('order_date');
+            $table->string('channel');
+            $table->string('sku');
             $table->text('item_description')->nullable();
-            $table->string('origin')->nullable();
-            $table->string('so_num')->nullable();
-            $table->double('cost')->nullable();
-            $table->double('shipping_cost')->nullable();
-            $table->double('total_price')->nullable();
+            $table->string('origin');
+            $table->string('so_num');
+            $table->decimal('cost', 10, 2);
+            $table->decimal('shipping_cost', 10, 2);
+            $table->decimal('total_price', 10, 2);
             $table->timestamps();
         });
     }

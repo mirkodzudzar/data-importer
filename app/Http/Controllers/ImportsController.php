@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Imports\OrdersImport;
 use App\Imports\DynamicImport;
 use App\Http\Requests\ImportRequest;
 use Maatwebsite\Excel\Facades\Excel;
@@ -15,6 +14,10 @@ class ImportsController extends Controller
     public function create()
     {
         $importTypes = config('import-types');
+
+        $importTypes = array_filter($importTypes, function ($importType) {
+            return auth()->user()->hasPermission($importType['permission_required']);
+        });
 
         $firstImport = collect($importTypes)->first();
 
