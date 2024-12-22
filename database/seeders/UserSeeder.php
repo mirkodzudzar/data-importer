@@ -19,5 +19,10 @@ class UserSeeder extends Seeder
         ]);
 
         $user->permissions()->attach(Permission::pluck('id'));
+
+        User::factory()->create([
+            'name' => 'John Doe',
+            'email' => 'john@doe.com',
+        ]);
     }
 }

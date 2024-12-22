@@ -1,66 +1,139 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Data Importer
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel project designed for data imports with dynamic file support, user roles, and permissions. This project uses Laravel AdminLTE for UI and Maatwebsite Excel for handling Excel and CSV files.
 
-## About Laravel
+## Requirements
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+To set up and run this project locally, ensure you have the following installed:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **PHP**: ^8.2
+- **Composer**: Latest version
+- **Node.js**: >= 18.6.0
+- **NPM**: Latest version
+- **MySQL**: For database setup
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Installation Guide
 
-## Learning Laravel
+Follow these steps to set up the project:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Step 1: Clone the Repository
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```bash
+git clone https://github.com/mirkodzudzar/data-importer.git
+cd data-importer
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Step 2: Install PHP Dependencies
 
-## Laravel Sponsors
+Run the following command to install the required PHP packages:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+composer install
+```
 
-### Premium Partners
+### Step 3: Configure the `.env` File
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+Copy the `.env.example` file to `.env`:
 
-## Contributing
+```bash
+cp .env.example .env
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Update the `.env` file with your configuration:
 
-## Code of Conduct
+- Set up your MySQL database:
+  ```
+  DB_CONNECTION=mysql
+  DB_HOST=127.0.0.1
+  DB_PORT=3306
+  DB_DATABASE=data_importer
+  DB_USERNAME=root
+  DB_PASSWORD=your_password
+  ```
+- Set the mail driver to log or configure an email service:
+  ```
+  MAIL_MAILER=log
+  ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- Optionally, set the `APP_URL` to match your local development server:
+  ```
+  APP_URL=http://localhost
+  ```
 
-## Security Vulnerabilities
+### Step 4: Generate Application Key
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Run the following command to generate the application key:
 
-## License
+```bash
+php artisan key:generate
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Step 5: Install Node.js Dependencies
+
+Run the following commands to install and build the frontend assets:
+
+```bash
+npm install
+npm run build
+```
+
+> If you're running the project in development mode, you can use `npm run dev` to enable live reloading.
+
+### Step 6: Set Up the Database
+
+Run the database migrations and seed the database:
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+This will create the necessary tables and seed some example data, including:
+
+- A user with full permissions:
+  - **Email**: `john1@doe.com`
+  - **Password**: `password`
+- A user with no permissions:
+  - **Email**: `john2@doe.com`
+  - **Password**: `password`
+
+### Step 7: Start the Queue Worker
+
+Ensure the queue worker is running as the project uses queues for processing imports:
+
+```bash
+php artisan queue:work --tries=3
+```
+
+### Step 8: Serve the Application
+
+Run the development server:
+
+```bash
+php artisan serve
+```
+
+Visit the application at the URL specified in your terminal (e.g., `http://127.0.0.1:8000`).
+
+## Features
+
+- Dynamic file imports for multiple types and formats (Excel, CSV)
+- Laravel AdminLTE UI integration
+- Role-based access control with permissions
+- Queue-based import processing
+- Comprehensive error logging for import failures
+
+## Development Commands
+
+ **Run Vite Dev Server**: For live reloading:
+  ```bash
+  npm run dev
+  ```
+
+## Notes
+
+- Ensure that the database is created and credentials are correct before running migrations.
+- If the mail configuration isn't set, email notifications for import failures will be logged to the `laravel.log` file.
+
+---
+
+For any further questions or issues, please feel free to contact mirkodzudzar@gmail.com
