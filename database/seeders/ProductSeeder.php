@@ -20,6 +20,11 @@ class ProductSeeder extends Seeder
             $productData[] = $this->prepareProductData($sku, $now);
         }
 
+        foreach(range(12300,12400) as $index) {
+            $sku = 'N'.$index.'-99';
+            $productData[] = $this->prepareProductData($sku, $now);
+        }
+
         DB::table("products")->insert($productData);
     }
 

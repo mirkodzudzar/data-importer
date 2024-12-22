@@ -112,7 +112,13 @@ class DynamicImport implements
                         break;
                     case 'date':
                         try {
-                            $value = \Carbon\Carbon::parse($value)->format('Y-m-d');
+                            // Check if the value is numeric (Excel serialized date)
+                            if (is_numeric($value)) {
+                                $value = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value)->format('Y-m-d');
+                            } else {
+                                // Handle standard date strings
+                                $value = \Carbon\Carbon::parse($value)->format('Y-m-d');
+                            }
                         } catch (\Exception $e) {
                             $value = null;
                         }
