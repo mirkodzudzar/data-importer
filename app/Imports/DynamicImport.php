@@ -8,6 +8,7 @@ use App\Models\Import;
 use App\ImportLogStatus;
 use App\Models\ImportLog;
 use Illuminate\Support\Str;
+use App\Events\ImportFailed;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Validators\Failure;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -36,26 +37,30 @@ class DynamicImport implements
     protected $rowNumber = 0;
     protected $columnMap = [];
     protected $importId;
+    protected $userId;
+    protected $hasErrors = false;
 
-    public function __construct(string $importType, array $importConfig, string $fileKey, string $fileName)
+    public function __construct(string $importType, array $importConfig, string $fileKey, string $fileName, int $userId)
     {
         $this->importType = $importType;
         $this->importConfig = $importConfig;
         $this->fileKey = $fileKey;
         $this->fileName = $fileName;
+        $this->userId = $userId;
+
+        $this->importId = Import::create([
+            'user_id' => $userId,
+            'import_type' => $importType,
+            'file_key' => $fileKey,
+            'file_name' => $fileName,
+            'status' => ImportStatus::IN_PROGRESS,
+        ])->id;
 
         // Dynamically determine model class (e.g., 'orders' -> 'App\Models\Order')
         $modelName = Str::singular(Str::studly($importType));
         $this->modelClass = "App\\Models\\{$modelName}";
 
-        $this->importId = Import::create([
-            'import_type' => $this->importType,
-            'file_key' => $this->fileKey,
-            'file_name' => $this->fileName,
-            'status' => ImportStatus::IN_PROGRESS,
-        ])->id;
-
-        // Pre-build column mapping
+        // Build column mapping for headers
         $this->buildColumnMap();
     }
 
@@ -68,7 +73,7 @@ class DynamicImport implements
 
             $this->columnMap[$excelHeader] = [
                 'db_field' => $dbField,
-                'type' => $fieldConfig['type']
+                'type' => $fieldConfig['type'],
             ];
         }
     }
@@ -96,6 +101,7 @@ class DynamicImport implements
             $normalizedRow[$normalizedHeader] = $value;
         }
 
+        // Map row data to database fields
         foreach ($this->columnMap as $excelHeader => $config) {
             $value = $normalizedRow[$excelHeader] ?? null;
 
@@ -169,6 +175,8 @@ class DynamicImport implements
      */
     public function onFailure(Failure ...$failures): void
     {
+        $this->hasErrors = true;
+
         foreach ($failures as $failure) {
             ImportLog::create([
                 'import_type' => $this->importType,
@@ -183,7 +191,7 @@ class DynamicImport implements
             ]);
         }
 
-        Import::where('id', $this->importId)->update(['status' => ImportStatus::UNSUCCESSFUL]);
+        event(new ImportFailed($this->importId, $this->fileName, $this->userId));
     }
 
     public function onError(Throwable $e): void
@@ -214,9 +222,9 @@ class DynamicImport implements
 
     public function __destruct()
     {
-        // Update import status to success if no errors
+        $status = $this->hasErrors ? ImportStatus::UNSUCCESSFUL : ImportStatus::SUCCESSFUL;
+
         Import::where('id', $this->importId)
-            ->where('status', ImportStatus::IN_PROGRESS)
-            ->update(['status' => ImportStatus::SUCCESSFUL]);
+            ->update(['status' => $status]);
     }
 }

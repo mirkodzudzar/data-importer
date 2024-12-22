@@ -3,14 +3,18 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\HasPermissions;
+use App\HasImportPermissions;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasPermissions, HasImportPermissions;
 
     /**
      * The attributes that are mass assignable.
@@ -46,17 +50,8 @@ class User extends Authenticatable
         ];
     }
 
-    public function permissions()
+    public function imports(): HasMany
     {
-        return $this->belongsToMany(Permission::class);
-    }
-
-    public function hasPermission(string $permission): bool
-    {
-        if ($this->relationLoaded('permissions')) {
-            return $this->permissions->contains('name', $permission);
-        }
-
-        return $this->permissions()->where('name', $permission)->exists();
+        return $this->hasMany(Import::class);
     }
 }

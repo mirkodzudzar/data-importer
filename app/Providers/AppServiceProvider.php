@@ -26,5 +26,9 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('user-management', function ($user) {
             return $user->hasPermission('user-management');
         });
+
+        Gate::define('import-data', function ($user) {
+            return $user->hasAnyImportPermission();
+        });
     }
 }

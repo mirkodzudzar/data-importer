@@ -24,8 +24,10 @@ Route::middleware('auth')->group(function () {
     });
 
     // Data import routes
-    Route::get('/imports/create', [ImportsController::class, 'create'])->name('imports.create');
-    Route::post('/imports', [ImportsController::class, 'store'])->name('imports.store');
+    Route::middleware('import-permissions')->group(function () {
+        Route::get('/imports/create', [ImportsController::class, 'create'])->name('imports.create');
+        Route::post('/imports', [ImportsController::class, 'store'])->name('imports.store');
+    });
 });
 
 Auth::routes();

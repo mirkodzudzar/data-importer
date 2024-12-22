@@ -13,11 +13,7 @@ class ImportsController extends Controller
      */
     public function create()
     {
-        $importTypes = config('import-types');
-
-        $importTypes = array_filter($importTypes, function ($importType) {
-            return auth()->user()->hasPermission($importType['permission_required']);
-        });
+        $importTypes = auth()->user()->getAvailableImportTypes();
 
         return view('imports.create', compact('importTypes'));
     }
@@ -27,13 +23,14 @@ class ImportsController extends Controller
      */
     public function store(ImportRequest $request)
     {
+        $user = auth()->user();
         $validated = $request->validated();
 
         $importType = $validated['import_type'];
         $importConfig = config("import-types.{$importType}");
         $permission = $importConfig['permission_required'];
 
-        if (!auth()->user()->hasPermission($permission)) {
+        if (!$user->hasPermission($permission)) {
             abort(404);
         }
 
@@ -50,7 +47,7 @@ class ImportsController extends Controller
                 $fileName = $file->getClientOriginalName();
 
                 Excel::import(
-                    new DynamicImport($importType, $importConfig, $fileKey, $fileName),
+                    new DynamicImport($importType, $importConfig, $fileKey, $fileName, $user->id),
                     $file
                 );
             }
