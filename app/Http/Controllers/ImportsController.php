@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Import;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
 use App\Imports\DynamicImport;
 use App\Http\Requests\ImportRequest;
 use Maatwebsite\Excel\Facades\Excel;
@@ -67,7 +68,7 @@ class ImportsController extends Controller
         return back()->with('success', __('Import started successfully! You will be notified once import is over.'));
     }
 
-    public function show($type, $file)
+    public function show(Request $request, $type, $file)
     {
         $importConfig = config("import-types.{$type}");
 
@@ -91,7 +92,7 @@ class ImportsController extends Controller
 
         if (!$latestImport) {
             return view('imports.show', [
-                'data' => collect(), // Empty data
+                'data' => collect(),
                 'headers' => array_keys($importConfig['files'][$file]['headers_to_db']),
                 'type' => $type,
                 'file' => $file,
@@ -99,9 +100,18 @@ class ImportsController extends Controller
         }
 
         // Fetch the data linked to the latest import
-        $data = $modelClass::where('import_id', $latestImport->id)
-            ->latest()
-            ->paginate(15);
+        $query = $modelClass::where('import_id', $latestImport->id);
+
+        if ($request->filled('search')) {
+            $searchTerm = $request->get('search');
+            $query->where(function ($q) use ($importConfig, $file, $searchTerm) {
+                foreach (array_keys($importConfig['files'][$file]['headers_to_db']) as $field) {
+                    $q->orWhere($field, 'like', '%'.$searchTerm.'%');
+                }
+            });
+        }
+
+        $data = $query->latest()->paginate(15);
 
         // Get headers for the table dynamically from the configuration
         $headers = array_keys($importConfig['files'][$file]['headers_to_db']);

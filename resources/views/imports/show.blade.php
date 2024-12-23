@@ -8,6 +8,20 @@
 
 @section('content')
     <div class="card">
+        <div class="card-header">
+            <form method="GET" action="{{ route('imports.show', ['type' => $type, 'file' => $file]) }}" class="d-flex">
+                <input
+                    type="text"
+                    name="search"
+                    class="form-control me-2"
+                    value="{{ request('search') }}"
+                    placeholder="{{ __('Search in all columns...') }}">
+
+                <button type="submit" class="btn btn-primary ml-1">{{ __('Filter') }}</button>
+
+                <a href="{{ route('imports.show', ['type' => $type, 'file' => $file]) }}" class="btn btn-secondary ms-2 ml-1">{{ __('Reset') }}</a>
+            </form>
+        </div>
         <div class="card-body">
             <table class="table">
                 <thead>
@@ -40,7 +54,7 @@
 
             @if ($data instanceof \Illuminate\Pagination\LengthAwarePaginator)
                 <div class="mt-3">
-                    {{ $data->links() }}
+                    {{ $data->appends(request()->query())->links() }}
                 </div>
             @endif
         </div>
