@@ -20,14 +20,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     // User management routes
-    Route::middleware('permission:user-management')->group(function () {
+    Route::middleware('can:user-management')->group(function () {
         Route::resource('users', UsersController::class)->except('show');
 
         Route::resource('permissions', PermissionsController::class)->except('show');
     });
 
     // Import routes
-    Route::middleware('import-permissions')->group(function () {
+    Route::middleware('can:import-data')->group(function () {
         Route::get('/imports/create', [ImportsController::class, 'create'])->name('imports.create');
         Route::post('/imports', [ImportsController::class, 'store'])->name('imports.store');
     });
@@ -36,7 +36,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/imports/{type}/{file}', [ImportsController::class, 'show'])->name('imports.show');
 
     // Imported data routes
-    Route::delete('/imported-data/{type}/{id}', [ImportedDataController::class, 'destroy'])->name('imported-data.destroy');
+    Route::delete('/imported-data/{type}/{id}', [ImportedDataController::class, 'destroy'])
+        ->name('imported-data.destroy');
 
     // Export routes
     Route::get('/exports/{type}/{file}', ExportController::class)->name('export');
