@@ -17,9 +17,13 @@
                     value="{{ request('search') }}"
                     placeholder="{{ __('Search in all columns...') }}">
 
-                <button type="submit" class="btn btn-primary ml-1">{{ __('Filter') }}</button>
+                <button type="submit" class="btn btn-primary ml-2">{{ __('Filter') }}</button>
 
-                <a href="{{ route('imports.show', ['type' => $type, 'file' => $file]) }}" class="btn btn-secondary ms-2 ml-1">{{ __('Reset') }}</a>
+                <a href="{{ route('imports.show', ['type' => $type, 'file' => $file]) }}" class="btn btn-secondary ms-2 ml-2">{{ __('Reset') }}</a>
+
+                <a href="{{ route('export', ['type' => $type, 'file' => $file]) }}?search={{ request('search') }}" class="btn btn-success ms-2 ml-2">
+                    {{ __('Export') }}
+                </a>
             </form>
         </div>
         <div class="card-body">

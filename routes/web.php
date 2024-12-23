@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ImportsController;
 use App\Http\Controllers\PermissionsController;
 
@@ -32,6 +33,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/imports', [ImportsController::class, 'index'])->name('imports.index');
     Route::get('/imports/{type}/{file}', [ImportsController::class, 'show'])->name('imports.show');
+
+    // Data export routes
+    Route::get('/exports/{type}/{file}', ExportController::class)->name('export');
 });
 
 Auth::routes();
