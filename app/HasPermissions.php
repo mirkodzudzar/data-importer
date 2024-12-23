@@ -20,11 +20,7 @@ trait HasPermissions
      */
     public function hasPermission(string $permission): bool
     {
-        if ($this->relationLoaded('permissions')) {
-            return $this->permissions->contains('name', $permission);
-        }
-
-        return $this->permissions()->where('name', $permission)->exists();
+        return $this->permissions->contains('name', $permission);
     }
 
     /**
@@ -32,6 +28,6 @@ trait HasPermissions
      */
     public function hasAnyPermission(array $permissions): bool
     {
-        return $this->permissions()->whereIn('name', $permissions)->exists();
+        return $this->permissions->pluck('name')->intersect($permissions)->isNotEmpty();
     }
 }

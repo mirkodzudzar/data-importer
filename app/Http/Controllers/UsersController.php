@@ -16,7 +16,7 @@ class UsersController extends Controller
      */
     public function index()
     {
-        $users = User::paginate(10);
+        $users = User::with('permissions')->paginate(10);
 
         return view('users.index', compact('users'));
     }
@@ -48,6 +48,8 @@ class UsersController extends Controller
      */
     public function edit(User $user)
     {
+        $user->load('permissions');
+
         $permissions = Permission::query()
             ->select('id', 'label')
             ->get();

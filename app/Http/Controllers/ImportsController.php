@@ -7,9 +7,7 @@ use App\Actions\GetImports;
 use Illuminate\Http\Request;
 use App\Actions\CreateImport;
 use App\HandlesDynamicImports;
-use App\Imports\DynamicImport;
 use App\Http\Requests\ImportRequest;
-use Maatwebsite\Excel\Facades\Excel;
 
 class ImportsController extends Controller
 {
@@ -17,7 +15,10 @@ class ImportsController extends Controller
 
     public function index()
     {
-        $imports = Import::latest()->paginate(10);
+        $imports = Import::query()
+            ->with('user', 'logs')
+            ->latest()
+            ->paginate(10);
 
         return view('imports.index', compact('imports'));
     }
