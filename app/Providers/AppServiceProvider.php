@@ -31,7 +31,11 @@ class AppServiceProvider extends ServiceProvider
             return $user->hasAnyImportPermission();
         });
 
-        // AdminLTE menu config
+        Gate::define('delete-imported-data', function ($user, $type) {
+            $permission = "import-" . strtolower($type);
+            return $user->hasPermission($permission);
+        });
+
         // AdminLTE menu config
         $importTypes = config('import-types');
         $menu = config('adminlte.menu');
@@ -52,12 +56,10 @@ class AppServiceProvider extends ServiceProvider
         }
 
         // Find the position where "Imported Data" should be inserted
-        $insertPosition = 2; // Position after "Data Import"
+        $insertPosition = 2;
 
-        // Insert the dynamic menu at the desired position
         array_splice($menu, $insertPosition, 0, [$importedDataMenu]);
 
-        // Update the menu configuration
         config(['adminlte.menu' => $menu]);
     }
 }

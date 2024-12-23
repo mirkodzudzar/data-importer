@@ -33,8 +33,13 @@
                         @foreach ($headers as $header)
                             <th>{{ ucfirst(str_replace('_', ' ', $header)) }}</th>
                         @endforeach
+
+                        @can('delete-imported-data', $type)
+                            <th>{{ __('Actions') }}</th>
+                        @endcan
                     </tr>
                 </thead>
+
                 <tbody>
                     @forelse ($data as $index => $row)
                         <tr>
@@ -47,10 +52,23 @@
                                     @endif
                                 </td>
                             @endforeach
+
+                            @can('delete-imported-data', $type)
+                                <td>
+                                    <form action="{{ route('imported-data.destroy', [$type, $row->id]) }}" method="POST" style="display:inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-link p-0 text-danger ml-2" title="{{ __('Delete') }}"
+                                            onclick="return confirm('{{ __('Are you sure you want to delete this entry from') }} {{ $type }}?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            @endcan
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ count($headers) }}">{{ __('No data available for the selected file.') }}</td>
+                            <td colspan="{{ count($headers) + 1 }}">{{ __('No data available for the selected file.') }}</td>
                         </tr>
                     @endforelse
                 </tbody>
